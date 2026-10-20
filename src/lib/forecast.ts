@@ -10,7 +10,7 @@ export function forecastNext(counts: number[]): number {
   let num = 0;
   let den = 0;
   xs.forEach((x, i) => {
-    num += (x - mx) * (counts[i] - my);
+    num += (x - mx) * ((counts[i] ?? 0) - my);
     den += (x - mx) ** 2;
   });
   const slope = den === 0 ? 0 : num / den;
@@ -23,7 +23,9 @@ function quantile(sorted: number[], q: number): number {
   const pos = (sorted.length - 1) * q;
   const lo = Math.floor(pos);
   const hi = Math.ceil(pos);
-  return sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
+  const a = sorted[lo] ?? 0;
+  const b = sorted[hi] ?? 0;
+  return a + (b - a) * (pos - lo);
 }
 
 /** Risk relative to peers (same level): top third = alto, middle = médio, bottom = baixo. */

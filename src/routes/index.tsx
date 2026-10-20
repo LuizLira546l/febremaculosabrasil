@@ -227,12 +227,12 @@ function Index() {
           <Block title="Perfil dos pacientes">
             <Bars
               rows={[
-                ["Masculino", summary.sx[0]],
-                ["Feminino", summary.sx[1]],
+                ["Masculino", summary.sx[0] ?? 0],
+                ["Feminino", summary.sx[1] ?? 0],
               ]}
             />
             <div className="mt-4">
-              <Bars rows={AGES.map((a, i) => [`${a} anos`, summary.ag[i]] as [string, number])} />
+              <Bars rows={AGES.map((a, i) => [`${a} anos`, summary.ag[i] ?? 0] as [string, number])} />
             </div>
           </Block>
 
@@ -256,7 +256,7 @@ function Index() {
           level={uf || "uf"}
           values={mapValues}
           names={mapNames}
-          selected={mu || undefined}
+          selected={mu}
           onSelect={selectFromMap}
         />
       </main>
