@@ -49,6 +49,7 @@ export function BrazilMap({ level, values, names, selected, onSelect }: Props) {
   useEffect(() => {
     let alive = true;
     setGeo(null);
+    setHover(null);
     loadGeo(level).then((g) => alive && setGeo(g));
     return () => {
       alive = false;
