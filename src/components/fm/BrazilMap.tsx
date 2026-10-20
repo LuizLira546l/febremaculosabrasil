@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { geoMercator, geoPath } from "d3-geo";
+import { geoArea, geoMercator, geoPath } from "d3-geo";
 import type { FeatureCollection, Geometry } from "geojson";
 
 type FC = FeatureCollection<Geometry, { codarea: string }>;
@@ -13,6 +13,14 @@ async function loadGeo(name: string): Promise<FC> {
   if (hit) return hit;
   const res = await fetch(`/geo/${name}.json`);
   const data = (await res.json()) as FC;
+  // IBGE ships RFC 7946 winding; d3-geo expects the opposite, so flip rings that cover the globe.
+  for (const f of data.features) {
+    if (geoArea(f) > 2 * Math.PI) {
+      const g = f.geometry;
+      if (g.type === "Polygon") g.coordinates.forEach((r) => r.reverse());
+      else if (g.type === "MultiPolygon") g.coordinates.forEach((p) => p.forEach((r) => r.reverse()));
+    }
+  }
   cache.set(name, data);
   return data;
 }

@@ -300,13 +300,14 @@ function Bars({ rows }: { rows: [string, number][] }) {
 }
 
 function Exposure({ label, v }: { label: string; v: number[] }) {
-  const answered = v[0] + v[1];
-  const pct = answered ? Math.round((v[0] / answered) * 100) : null;
+  const yes = v[0] ?? 0;
+  const answered = yes + (v[1] ?? 0);
+  const pct = answered ? Math.round((yes / answered) * 100) : null;
   return (
     <div className="rounded-lg border border-border bg-card p-3">
       <div className="text-xs text-muted-foreground">{label}</div>
       <div className="font-display text-lg font-semibold">{pct === null ? "—" : `${pct}%`}</div>
-      <div className="text-[11px] text-muted-foreground">{v[0]} de {answered}</div>
+      <div className="text-[11px] text-muted-foreground">{yes} de {answered}</div>
     </div>
   );
 }
