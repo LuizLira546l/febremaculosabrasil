@@ -14,12 +14,13 @@ async function loadGeo(name: string): Promise<FC> {
   const res = await fetch(`/geo/${name}.json`);
   const data = (await res.json()) as FC;
   // IBGE ships RFC 7946 winding; d3-geo expects the opposite, so flip rings that cover the globe.
+  const fix = (rings: number[][][]) => {
+    if (geoArea({ type: "Polygon", coordinates: rings }) > 2 * Math.PI) rings.forEach((r) => r.reverse());
+  };
   for (const f of data.features) {
-    if (geoArea(f) > 2 * Math.PI) {
-      const g = f.geometry;
-      if (g.type === "Polygon") g.coordinates.forEach((r) => r.reverse());
-      else if (g.type === "MultiPolygon") g.coordinates.forEach((p) => p.forEach((r) => r.reverse()));
-    }
+    const g = f.geometry;
+    if (g.type === "Polygon") fix(g.coordinates);
+    else if (g.type === "MultiPolygon") g.coordinates.forEach(fix);
   }
   cache.set(name, data);
   return data;
