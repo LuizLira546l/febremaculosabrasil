@@ -1,24 +1,96 @@
-# Febremaculosabrasil
+# 🦠 Análise Epidemiológica da Febre Maculosa no Brasil
 
-App "Febre Maculosa · Brasil" no mesmo estilo do Rota Segura (tema escuro, mapa, painel lateral). Use os casos de 2013–2018. Na lateral, escolher o estado e, opcionalmente, o município de residência. No mapa, pintar as regiões pelo número de casos. Ao selecionar, mostrar: casos por ano (gráfico de 2013 a 2018), óbitos e letalidade, perfil dos pacientes (sexo, faixa etária, contato com carrapato, capivara, cão/gato ou cavalo) e uma previsão de casos para 2019 com risco baixo, médio ou alto. Use o dicionário de dados para traduzir os códigos.
+Este repositório contém scripts de análise exploratória, tratamento e visualização de dados epidemiológicos da **Febre Maculosa Brasileira (FMB)**. O objetivo principal do projeto é mapear a distribuição temporal/geográfica da doença e avaliar a realização de exames diagnósticos no país.
 
-This project was built with [Lovable](https://lovable.dev).
+---
 
-**Live app**: https://febremaculosabrasil.lovable.app
+### 📂 Estrutura do Repositório
 
-## Build with Lovable
+```text
+├── FMACBR13.xlsx            # Base de dados original (Excel)
+├── grafico_maculosa2013.R   # Script em R para manipulação de dados e gráficos
+├── explorando.py            # Script em Python para análise de frequências
+└── README.md                # Documentação do projeto
+```
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/2831b16b-ea2a-489e-928c-eef5146ce61d).
+---
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+### 📌 Principais Objetivos
 
-## Development
+* **Identificação dos Focos de Incidência**: Mapear os municípios com maior número de notificações (`top5_municipios`).
+* **Análise Temporal**: Acompanhar o comportamento da doença ao longo do tempo (por trimestres e anos).
+* **Indicadores Diagnósticos**: Calcular a proporção de exames laboratoriais realizados (ex: Histopatologia e Imunohistoquímica).
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+---
 
-```sh
+### 🛠️ Tecnologias e Pacotes Utilizados
+
+#### **Linguagem R (`tidyverse`)**
+* `dplyr`: Manipulação de dados (`filter`, `group_by`, `summarise`, `mutate`).
+* `ggplot2`: Construção de gráficos de séries temporais e barras.
+* `lubridate`: Manipulação e parsing de datas epidemiológicas.
+
+#### **Linguagem Python (`pandas`)**
+* `pandas`: Leitura do arquivo Excel (`read_excel`) e cálculo de distribuições percentuais (`value_counts`).
+* `openpyxl`: Suporte para leitura de arquivos `.xlsx`.
+
+---
+
+### 🚀 Como Executar o Projeto
+
+#### **Em R**
+1. Certifique-se de ter os pacotes instalados:
+   ```R
+   install.packages("tidyverse")
+   install.packages("readxl")
+   ```
+2. Abra o arquivo `grafico_maculosa2013.R` no RStudio e execute as linhas sequencialmente.
+
+#### **Em Python**
+1. Instale as dependências necessárias:
+   ```bash
+   pip install pandas openpyxl
+   ```
+2. Execute o arquivo `explorando.py`:
+   ```bash
+   python explorando.py
+   ```
+
+---
+
+### 📊 Exemplos de Análises Realizadas
+
+#### **1. Filtragem dos Maiores Focos (R)**
+```R
+# Seleção dos 5 municípios com mais casos
+top5_municipios <- dados |> 
+  count(ID_MUNICIP, sort = TRUE) |> 
+  slice_head(n = 5) |> 
+  pull(ID_MUNICIP)
+
+# Gráfico de tendência por trimestre
+dados |> 
+  filter(ID_MUNICIP %in% top5_municipios) |> 
+  ggplot(aes(x = trimestre, y = n, color = factor(ID_MUNICIP), group = ID_MUNICIP)) +
+  geom_line() +
+  labs(title = "Evolução do Número de Casos nos Maiores Focos", x = "Trimestre", y = "Casos")
+```
+
+#### **2. Percentual de Exames Não Realizados (Python)**
+```python
+import pandas as pd
+
+dados = pd.read_excel("FMACBR13.xlsx")
+
+# Porcentagem de exames Histopatológicos por categoria
+pct_histopato = (dados["HISTOPATO"].value_counts(normalize=True) * 100).round(2)
+print(pct_histopato)
+```
+
+---
+
+### 📜 Licença
+Este projeto é de cunho acadêmico e de análise de dados abertos de saúde pública.
 git clone <this-repository-url>
 cd <repository-name>
 npm i
