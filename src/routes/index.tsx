@@ -16,16 +16,16 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Febre Maculosa · Brasil — casos 2013–2018" },
+      { title: "Febre Maculosa · Brasil — casos 2013–2025" },
       {
         name: "description",
         content:
-          "Mapa de casos confirmados de febre maculosa por estado e município (2013–2018), óbitos, letalidade, perfil dos pacientes e previsão para 2019.",
+          "Mapa de casos confirmados de febre maculosa por estado e município (2013–2025), óbitos, letalidade, perfil dos pacientes e previsão para 2026.",
       },
       { property: "og:title", content: "Febre Maculosa · Brasil" },
       {
         property: "og:description",
-        content: "Casos, letalidade, perfil dos pacientes e risco previsto para 2019 por estado e município.",
+        content: "Casos, letalidade, perfil dos pacientes e risco previsto para 2026 por estado e município.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -51,7 +51,7 @@ interface Data {
   ufs: Record<string, { s: string; n: string }>;
 }
 const data = raw as unknown as Data;
-const YEARS = [2013, 2014, 2015, 2016, 2017, 2018];
+const YEARS = Array.from({ length: 13 }, (_, i) => 2013 + i);
 const AGES = ["0–9", "10–19", "20–39", "40–59", "60+"];
 const total = (s: Summary) => s.y.reduce((a, b) => a + b, 0);
 
@@ -88,7 +88,7 @@ function Index() {
     return out;
   }, [uf, muList]);
 
-  const empty: Summary = { y: [0, 0, 0, 0, 0, 0], d: 0, sx: [0, 0], ag: [0, 0, 0, 0, 0], ca: [0, 0], cp: [0, 0], cg: [0, 0], eq: [0, 0] };
+  const empty: Summary = { y: YEARS.map(() => 0), d: 0, sx: [0, 0], ag: [0, 0, 0, 0, 0], ca: [0, 0], cp: [0, 0], cg: [0, 0], eq: [0, 0] };
   const summary: Summary = mu ? data.mu[mu] ?? empty : uf ? data.uf[uf] ?? empty : data.br;
   const title = mu
     ? `${data.mu[mu]?.n} · ${data.ufs[uf]?.s}`
@@ -101,7 +101,7 @@ function Index() {
   if (mu) risk = riskLevel(pred, muForecasts);
   else if (uf) risk = riskLevel(pred, ufForecasts);
   else {
-    const mean = total(summary) / 6;
+    const mean = total(summary) / YEARS.length;
     risk = pred > mean * 1.15 ? "alto" : pred < mean * 0.85 ? "baixo" : "médio";
   }
 
@@ -122,7 +122,7 @@ function Index() {
           </div>
           <h1 className="mt-1 text-2xl font-semibold">Febre Maculosa · Brasil</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Casos confirmados por residência, 2013–2018 (SINAN)
+            Casos confirmados por residência, 2013–2025 (SINAN)
           </p>
         </header>
 
@@ -209,7 +209,7 @@ function Index() {
             </div>
           </Block>
 
-          <Block title="Previsão 2019">
+          <Block title="Previsão 2026">
             <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
               <div>
                 <div className="font-display text-3xl font-semibold">{pred.toFixed(pred < 10 ? 1 : 0)}</div>
@@ -220,7 +220,7 @@ function Index() {
             <p className="mt-2 text-xs text-muted-foreground">
               {mu || uf
                 ? `Risco comparado aos demais ${mu ? "municípios" : "estados"} com casos: terço superior = alto.`
-                : "Risco comparado à média nacional de 2013–2018."}
+                : "Risco comparado à média nacional de 2013–2025."}
             </p>
           </Block>
 
