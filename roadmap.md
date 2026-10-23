@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Tarefas
-- [ ] Regenerar `src/data/fm.json` com casos confirmados 2013–2025 (por residência, CLASSI_FIN=1)
-- [ ] Atualizar app (anos 2013–2025, previsão 2026, metadados) e testes de forecast
-- [ ] Responder às 34 perguntas do documento (relatório com curvas e tabelas)
+- [ ] Verificar app com dados 2013–2025 (testes + prévia)
+- [ ] Feature: série temporal avançada (curva mensal/sazonalidade, comparação de anos, previsão com IC)
+- [ ] Feature: comparação e ranking (dois estados/municípios lado a lado, ranking de casos e letalidade)
+- [ ] Feature: análise demográfica e clínica (raça, escolaridade, gestante, hospitalização, fatores de risco)
+- [ ] Relatório das 34 perguntas do documento (pendente de créditos/anterior)
