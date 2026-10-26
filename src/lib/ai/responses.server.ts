@@ -5,11 +5,11 @@ import {
   createLovableAiGatewayRunIdFetch,
   getLovableAiGatewayRunId,
   withLovableAiGatewayRunIdHeader,
-} from "../../ai-apps-gateway-sdk/examples/run-id.ts";
+} from "./run-id.ts";
 
 export function createResponsesCall(
   request: Request,
-  config: { baseURL: string; apiKey: string; model: string },
+  config: { baseURL: string; apiKey: string; model: string; fetch?: typeof fetch },
   messages: ModelMessage[],
   instructions?: string,
 ) {
@@ -18,7 +18,7 @@ export function createResponsesCall(
     baseURL: `${config.baseURL.replace(/\/+$/, "").replace(/\/v1$/, "")}/v1`,
     apiKey: config.apiKey,
     headers: { "Lovable-API-Key": config.apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
-    fetch: runIdFetch.fetch,
+    fetch: config.fetch ?? runIdFetch.fetch,
   });
   const reasoning = config.model !== "openai/chat-latest";
   const result = streamText({
@@ -27,6 +27,7 @@ export function createResponsesCall(
     ...(instructions ? { instructions } : {}),
     messages,
     abortSignal: request.signal,
+    maxRetries: 0,
     providerOptions: {
       openai: {
         store: false,

@@ -14,7 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      research_ai_gate: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          status: number
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          message: string
+          status: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          status?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
