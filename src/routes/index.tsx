@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { Bug, MapPin, X } from "lucide-react";
 import raw from "@/data/fm.json";
 import { BrazilMap } from "@/components/fm/BrazilMap";
+import { ResearchPanel } from "@/components/fm/ResearchPanel";
 import { forecastNext, lethality, riskLevel, type Risk } from "@/lib/forecast";
 import {
   Select,
@@ -113,8 +114,8 @@ function Index() {
   };
 
   return (
-    <div className="flex h-screen w-full flex-col overflow-hidden bg-background lg:flex-row">
-      <aside className="flex w-full shrink-0 flex-col overflow-y-auto border-border bg-sidebar lg:h-full lg:w-[420px] lg:border-r">
+    <div className="flex min-h-screen w-full flex-col bg-background lg:h-screen lg:overflow-hidden lg:flex-row">
+      <aside className="flex w-full shrink-0 flex-col border-border bg-sidebar lg:h-full lg:overflow-y-auto lg:w-[420px] lg:border-r">
         <header className="border-b border-border px-6 py-5">
           <div className="flex items-center gap-2 text-primary">
             <Bug className="h-5 w-5" />
@@ -245,6 +246,7 @@ function Index() {
             </div>
             <p className="mt-2 text-xs text-muted-foreground">% de “Sim” entre quem respondeu (exclui ignorado/em branco).</p>
           </Block>
+          <ResearchPanel uf={uf} mu={mu} />
         </section>
       </aside>
 
