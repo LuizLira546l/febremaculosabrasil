@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { ArrowLeft, ChevronRight, RotateCcw, Filter, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -17,7 +17,8 @@ function Profiles() {
   const [f,setF] = useState<ProfileFilters>(defaultProfileFilters);
   const {data} = useSuspenseQuery(options(f));
   const [view,setView] = useState('');
-  const update = (v:Partial<ProfileFilters>) => setF(old => ({...old,...v}));
+  const [pending,startTransition] = useTransition();
+  const update = (v:Partial<ProfileFilters>) => startTransition(()=>setF(old => ({...old,...v})));
   const category = (code:string,value:string) => { const c={...f.categories}; if(value==='all') delete c[code]; else c[code]=Number(value); update({categories:c}); };
   const applyProfile = (values:number[]) => { const c={...f.categories}; f.joint.forEach((k,j)=>{ const value=values[j]; if(value!==undefined)c[k]=value; }); update({categories:c}); };
   const activeLabel = (code:string) => { const value=f.categories[code]; return value===undefined?'':fields.find(v=>v.code===code)?.categories[value] ?? ''; };
@@ -34,9 +35,10 @@ function Profiles() {
         {f.uf && <Choice label="Município" value={f.mu||'all'} items={[{value:'all',label:'Todos os municípios com casos'},...Object.entries(municipalities).filter(([m])=>m.startsWith(f.uf)).sort((a,b)=>a[1].n.localeCompare(b[1].n)).map(([value,m])=>({value,label:m.n}))]} onChange={m=>update({mu:m==='all'?'':m})}/>}
         <div className="grid grid-cols-2 gap-2"><Choice label="Ano inicial" value={String(f.from)} items={years.map(y=>({value:String(y),label:String(y)}))} onChange={v=>update({from:Number(v),to:Math.max(Number(v),f.to)})}/><Choice label="Ano final" value={String(f.to)} items={years.map(y=>({value:String(y),label:String(y)}))} onChange={v=>update({to:Number(v),from:Math.min(Number(v),f.from)})}/></div>
         <details open className="border-t border-border pt-4"><summary className="cursor-pointer text-sm font-semibold">Filtros por variável ({active.length})</summary><div className="mt-3 space-y-3">{fields.map(v=><Choice key={v.code} label={v.label} value={f.categories[v.code]===undefined?'all':String(f.categories[v.code])} items={[{value:'all',label:'Todas as categorias'},...v.categories.map((label,i)=>({value:String(i),label}))]} onChange={value=>category(v.code,value)}/>)}</div></details>
-        <Button variant="outline" className="w-full" onClick={()=>setF(defaultProfileFilters)}><RotateCcw />Limpar filtros</Button>
+        <Button variant="outline" className="w-full" onClick={()=>startTransition(()=>setF(defaultProfileFilters))}><RotateCcw />Limpar filtros</Button>
       </aside>
       <main className="min-w-0 space-y-7">
+        {pending && <p role="status" className="text-xs text-muted-foreground">Atualizando o recorte…</p>}
         <nav aria-label="Território" className="flex flex-wrap items-center gap-1 text-sm"><Button variant="ghost" size="sm" onClick={()=>update({region:'',uf:'',mu:''})}>Brasil</Button>{f.region&&<><ChevronRight className="h-3 w-3"/><Button variant="ghost" size="sm" onClick={()=>update({uf:'',mu:''})}>{regions[f.region]?.name}</Button></>}{f.uf&&<><ChevronRight className="h-3 w-3"/><Button variant="ghost" size="sm" onClick={()=>update({mu:''})}>{states[f.uf]?.n}</Button></>}{f.mu&&<><ChevronRight className="h-3 w-3"/><span>{municipalities[f.mu]?.n}</span></>}</nav>
         <section><div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="font-display text-3xl font-semibold">{location}</h2><p className="mt-2 text-muted-foreground"><strong className="text-foreground" data-testid="profile-total">{data.total}</strong> de {data.territorialTotal} casos no território · {f.from}–{f.to}</p></div><Users className="h-7 w-7 text-primary"/></div>{active.length>0&&<div className="mt-3 flex flex-wrap gap-2">{active.map(v=><Button key={v.code} variant="secondary" size="sm" className="h-auto whitespace-normal text-left" onClick={()=>category(v.code,'all')}>{v.label}: {activeLabel(v.code)} ×</Button>)}</div>}<p className="mt-3 text-xs leading-relaxed text-muted-foreground">Contato com cão/gato não comprova transmissão pelo animal. As frequências descrevem fichas confirmadas, não risco na população. Combinações são calculadas nas mesmas fichas, nunca pela união de categorias predominantes.</p></section>
         {data.children.length>0&&<section className="border-t border-border pt-5"><h3 className="mb-3 text-sm font-semibold">{!f.region?'Explorar regiões':!f.uf?'Explorar estados':'Explorar municípios'}</h3><div className="grid max-h-72 gap-2 overflow-y-auto sm:grid-cols-2">{data.children.map(c=><Button key={c.code} variant="outline" className="h-auto min-h-11 justify-between whitespace-normal py-2 text-left" onClick={()=>!f.region?update({region:c.code,uf:'',mu:''}):!f.uf?update({uf:c.code,mu:''}):update({mu:c.code})}><span>{c.name}</span><span className="flex shrink-0 items-center gap-2 tabular-nums">{c.count}<ChevronRight className="h-3 w-3"/></span></Button>)}</div></section>}
