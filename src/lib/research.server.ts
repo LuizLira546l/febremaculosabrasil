@@ -53,14 +53,14 @@ export async function answerResearch(request: Request): Promise<Response> {
           const part = chunk.value;
           if (part.type === 'text-delta') { text = true; send({ type: 'text', text: part.text }); }
           if (part.type === 'error') { send({ type: 'error', message: upstreamMessage }); break; }
-          if (part.type === 'finish' && !text) send({ type: 'error', message: 'Le modèle não forneceu resposta ou recusou este pedido.' });
+          if (part.type === 'finish' && !text) send({ type: 'error', message: 'O modelo não forneceu resposta ou recusou este pedido.' });
           chunk = await iterator.next();
         }
         send({ type: 'done' });
       } catch { if (!request.signal.aborted) send({ type: 'error', message: upstreamMessage }); }
       finally { controller.close(); }
     },
-    cancel() { return iterator.return?.(); },
+    async cancel() { await iterator.return?.(); },
   });
   const headers = new Headers({ 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-store' });
   const id = run.getRunId(); if (id) headers.set('X-Lovable-AIG-Run-ID', id);
