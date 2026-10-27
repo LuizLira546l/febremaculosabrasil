@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Tarefas
+- [ ] Perfis por variável e combinações reais, com filtros e exploração Brasil → região → estado → município
 - [x] Pesquisa em linguagem natural via AI Gateway, com filtros e evidências verificáveis
 - [x] Exportação CSV dos dados agregados por estado, município e período, com nomes legíveis e nota de ausentes
 - [x] PDF com o passo a passo da metodologia estatística (em /mnt/documents)
