@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Bug, MapPin, X } from "lucide-react";
 import raw from "@/data/fm.json";
 import { BrazilMap } from "@/components/fm/BrazilMap";
 import { ResearchPanel } from "@/components/fm/ResearchPanel";
+import { Button } from "@/components/ui/button";
 import { forecastNext, lethality, riskLevel, type Risk } from "@/lib/forecast";
 import {
   Select,
@@ -125,6 +126,7 @@ function Index() {
           <p className="mt-1 text-sm text-muted-foreground">
             Casos confirmados por residência, 2013–2025 (SINAN)
           </p>
+          <Button asChild variant="outline" className="mt-4 w-full"><Link to="/perfis">Explorar perfis por território</Link></Button>
         </header>
 
         <div className="space-y-3 border-b border-border px-6 py-5">
