@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PerfisRouteImport } from './routes/perfis'
 import { Route as ApiResearchRouteImport } from './routes/api/research'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfisRoute = PerfisRouteImport.update({
+  id: '/perfis',
+  path: '/perfis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiResearchRoute = ApiResearchRouteImport.update({
@@ -25,27 +31,31 @@ const ApiResearchRoute = ApiResearchRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/perfis': typeof PerfisRoute
   '/api/research': typeof ApiResearchRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/perfis': typeof PerfisRoute
   '/api/research': typeof ApiResearchRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/perfis': typeof PerfisRoute
   '/api/research': typeof ApiResearchRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/research'
+  fullPaths: '/' | '/perfis' | '/api/research'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/research'
-  id: '__root__' | '/' | '/api/research'
+  to: '/' | '/perfis' | '/api/research'
+  id: '__root__' | '/' | '/perfis' | '/api/research'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PerfisRoute: typeof PerfisRoute
   ApiResearchRoute: typeof ApiResearchRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfis': {
+      id: '/perfis'
+      path: '/perfis'
+      fullPath: '/perfis'
+      preLoaderRoute: typeof PerfisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/research': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PerfisRoute: PerfisRoute,
   ApiResearchRoute: ApiResearchRoute,
 }
 export const routeTree = rootRouteImport
