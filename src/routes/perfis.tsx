@@ -19,6 +19,8 @@ function Profiles() {
   const [view,setView] = useState('');
   const update = (v:Partial<ProfileFilters>) => setF(old => ({...old,...v}));
   const category = (code:string,value:string) => { const c={...f.categories}; if(value==='all') delete c[code]; else c[code]=Number(value); update({categories:c}); };
+  const applyProfile = (values:number[]) => { const c={...f.categories}; f.joint.forEach((k,j)=>{ const value=values[j]; if(value!==undefined)c[k]=value; }); update({categories:c}); };
+  const activeLabel = (code:string) => { const value=f.categories[code]; return value===undefined?'':fields.find(v=>v.code===code)?.categories[value] ?? ''; };
   const location = f.mu ? municipalities[f.mu]?.n : f.uf ? states[f.uf]?.n : f.region ? regions[f.region]?.name : 'Brasil';
   const active = fields.filter(v => f.categories[v.code]!==undefined);
   const displayed = view ? data.distributions.filter(v => v.code===view) : data.distributions;
@@ -28,7 +30,7 @@ function Profiles() {
       <aside className="space-y-5">
         <h2 className="flex items-center gap-2 font-semibold"><Filter className="h-4 w-4 text-primary" />Recorte</h2>
         <Choice label="Região" value={f.region||'all'} items={[{value:'all',label:'Brasil · todas as regiões'},...Object.entries(regions).map(([value,r])=>({value,label:r.name}))]} onChange={r=>update({region:r==='all'?'':r,uf:'',mu:''})}/>
-        {f.region && <Choice label="Estado" value={f.uf||'all'} items={[{value:'all',label:'Todos os estados'},...regions[f.region].states.map(value=>({value,label:states[value]?.n??value}))]} onChange={u=>update({uf:u==='all'?'':u,mu:''})}/>}
+        {f.region && <Choice label="Estado" value={f.uf||'all'} items={[{value:'all',label:'Todos os estados'},...(regions[f.region]?.states ?? []).map(value=>({value,label:states[value]?.n??value}))]} onChange={u=>update({uf:u==='all'?'':u,mu:''})}/>}
         {f.uf && <Choice label="Município" value={f.mu||'all'} items={[{value:'all',label:'Todos os municípios com casos'},...Object.entries(municipalities).filter(([m])=>m.startsWith(f.uf)).sort((a,b)=>a[1].n.localeCompare(b[1].n)).map(([value,m])=>({value,label:m.n}))]} onChange={m=>update({mu:m==='all'?'':m})}/>}
         <div className="grid grid-cols-2 gap-2"><Choice label="Ano inicial" value={String(f.from)} items={years.map(y=>({value:String(y),label:String(y)}))} onChange={v=>update({from:Number(v),to:Math.max(Number(v),f.to)})}/><Choice label="Ano final" value={String(f.to)} items={years.map(y=>({value:String(y),label:String(y)}))} onChange={v=>update({to:Number(v),from:Math.min(Number(v),f.from)})}/></div>
         <details open className="border-t border-border pt-4"><summary className="cursor-pointer text-sm font-semibold">Filtros por variável ({active.length})</summary><div className="mt-3 space-y-3">{fields.map(v=><Choice key={v.code} label={v.label} value={f.categories[v.code]===undefined?'all':String(f.categories[v.code])} items={[{value:'all',label:'Todas as categorias'},...v.categories.map((label,i)=>({value:String(i),label}))]} onChange={value=>category(v.code,value)}/>)}</div></details>

@@ -33,10 +33,10 @@ export function computeProfiles(source: ProfileRow[], f: ProfileFilters) {
   const indices = f.joint.map(k => fields.findIndex(x => x.code === k));
   const combos = new Map<string,number>(); let complete = 0;
   for (const r of selected) {
-    if (indices.some(i => r[2][i] === fields[i].categories.length-1)) continue;
+    if (indices.some(i => r[2][i] === (fields[i]?.categories.length ?? 1)-1)) continue;
     const key = indices.map(i => r[2][i]).join(','); combos.set(key,(combos.get(key) ?? 0)+r[3]); complete+=r[3];
   }
-  const ranking = [...combos].sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0])).slice(0,5).map(([key,count]) => ({ count, values: key.split(',').map(Number), labels: key.split(',').map((v,j) => fields[indices[j]].categories[Number(v)]) }));
-  const children = !f.region ? Object.entries(regions).map(([code,r]) => ({code,name:r.name,count:sum(selected.filter(row => r.states.includes(row[0].slice(0,2))))})) : !f.uf ? regions[f.region].states.map(code => ({code,name:states[code]?.n ?? code,count:sum(selected.filter(r => r[0].startsWith(code)))})) : !f.mu ? Object.entries(municipalities).filter(([m]) => m.startsWith(f.uf)).map(([code,p]) => ({code,name:p.n,count:sum(selected.filter(r => r[0] === code))})) : [];
-  return { total, territorialTotal, distributions, ranking, complete, excluded:total-complete, tie:ranking.length>1 && ranking[0].count === ranking[1].count, children:children.sort((a,b) => b.count-a.count || a.name.localeCompare(b.name)) };
+  const ranking = [...combos].sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0])).slice(0,5).map(([key,count]) => ({ count, values: key.split(',').map(Number), labels: key.split(',').map((v,j) => { const index=indices[j]; return index===undefined?'':fields[index]?.categories[Number(v)] ?? ''; }) }));
+  const children = !f.region ? Object.entries(regions).map(([code,r]) => ({code,name:r.name,count:sum(selected.filter(row => r.states.includes(row[0].slice(0,2))))})) : !f.uf ? (regions[f.region]?.states ?? []).map(code => ({code,name:states[code]?.n ?? code,count:sum(selected.filter(r => r[0].startsWith(code)))})) : !f.mu ? Object.entries(municipalities).filter(([m]) => m.startsWith(f.uf)).map(([code,p]) => ({code,name:p.n,count:sum(selected.filter(r => r[0] === code))})) : [];
+  return { total, territorialTotal, distributions, ranking, complete, excluded:total-complete, tie:ranking.length>1 && ranking[0]?.count === ranking[1]?.count, children:children.sort((a,b) => b.count-a.count || a.name.localeCompare(b.name)) };
 }
