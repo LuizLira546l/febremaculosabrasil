@@ -19,7 +19,7 @@ export function validateProfileFilters(f: ProfileFilters) {
   if (f.joint.length < 1 || f.joint.length > 4 || new Set(f.joint).size !== f.joint.length || f.joint.some(k => !fields.some(v => v.code === k))) throw new Error('Selecione de uma a quatro variáveis.');
   for (const [k,v] of Object.entries(f.categories)) { const field = fields.find(x => x.code === k); if (!field || !Number.isInteger(v) || v < 0 || v >= field.categories.length) throw new Error('Categoria inválida.'); }
 }
-export function computeProfiles(source: ProfileRow[], f: ProfileFilters) {
+export function computeProfiles(source: ProfileRow[], f: ProfileFilters, rankingLimit = 5) {
   validateProfileFilters(f);
   const territory = source.filter(([m,y]) => y >= f.from && y <= f.to && (!f.region || regions[f.region]?.states.includes(m.slice(0,2))) && (!f.uf || m.startsWith(f.uf)) && (!f.mu || m === f.mu));
   const selected = territory.filter(r => Object.entries(f.categories).every(([k,v]) => r[2][fields.findIndex(x => x.code === k)] === v));
@@ -36,7 +36,42 @@ export function computeProfiles(source: ProfileRow[], f: ProfileFilters) {
     if (indices.some(i => r[2][i] === (fields[i]?.categories.length ?? 1)-1)) continue;
     const key = indices.map(i => r[2][i]).join(','); combos.set(key,(combos.get(key) ?? 0)+r[3]); complete+=r[3];
   }
-  const ranking = [...combos].sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0])).slice(0,5).map(([key,count]) => ({ count, values: key.split(',').map(Number), labels: key.split(',').map((v,j) => { const index=indices[j]; return index===undefined?'':fields[index]?.categories[Number(v)] ?? ''; }) }));
+  const ranking = [...combos].sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0])).slice(0,rankingLimit).map(([key,count]) => ({ count, values: key.split(',').map(Number), labels: key.split(',').map((v,j) => { const index=indices[j]; return index===undefined?'':fields[index]?.categories[Number(v)] ?? ''; }) }));
   const children = !f.region ? Object.entries(regions).map(([code,r]) => ({code,name:r.name,count:sum(selected.filter(row => r.states.includes(row[0].slice(0,2))))})) : !f.uf ? (regions[f.region]?.states ?? []).map(code => ({code,name:states[code]?.n ?? code,count:sum(selected.filter(r => r[0].startsWith(code)))})) : !f.mu ? Object.entries(municipalities).filter(([m]) => m.startsWith(f.uf)).map(([code,p]) => ({code,name:p.n,count:sum(selected.filter(r => r[0] === code))})) : [];
   return { total, territorialTotal, distributions, ranking, complete, excluded:total-complete, tie:ranking.length>1 && ranking[0]?.count === ranking[1]?.count, children:children.sort((a,b) => b.count-a.count || a.name.localeCompare(b.name)) };
+}
+export type ProfileTerritory = Pick<ProfileFilters, 'region' | 'uf' | 'mu'>;
+export type ProfileComparisonFilters = { filters: ProfileFilters; a: ProfileTerritory; b: ProfileTerritory };
+export function profilePercentage(count: number, denominator: number): number | null {
+  return denominator > 0 ? count / denominator * 100 : null;
+}
+export function profileMetrics(count: number, territorialTotal: number, valid: number) {
+  return { count, territorialTotal, valid, percent: profilePercentage(count, territorialTotal), validPercent: profilePercentage(count, valid) };
+}
+export type ProfileMetrics = ReturnType<typeof profileMetrics>;
+export function profileDifference(a: ProfileMetrics, b: ProfileMetrics) {
+  return { count: b.count - a.count, points: a.percent === null || b.percent === null ? null : b.percent - a.percent };
+}
+export function computeProfileComparison(source: ProfileRow[], input: ProfileComparisonFilters) {
+  const a = computeProfiles(source, { ...input.filters, ...input.a }, Infinity);
+  const b = computeProfiles(source, { ...input.filters, ...input.b }, Infinity);
+  const keys = [...new Set([...a.ranking.slice(0,5), ...b.ranking.slice(0,5)].map(r => r.values.join(',')))];
+  const combinations = keys.map(key => {
+    const rowA = a.ranking.find(r => r.values.join(',') === key);
+    const rowB = b.ranking.find(r => r.values.join(',') === key);
+    const left = profileMetrics(rowA?.count ?? 0, a.territorialTotal, a.complete);
+    const right = profileMetrics(rowB?.count ?? 0, b.territorialTotal, b.complete);
+    return { key, labels: rowA?.labels ?? rowB?.labels ?? [], a: left, b: right, difference: profileDifference(left, right) };
+  }).sort((x,y) => y.a.count + y.b.count - x.a.count - x.b.count || x.key.localeCompare(y.key));
+  const distributions = a.distributions.map((field, i) => ({
+    code: field.code, label: field.label,
+    rows: field.counts.map((r,j) => {
+      const left = profileMetrics(r.count, a.territorialTotal, field.valid);
+      const right = profileMetrics(b.distributions[i]?.counts[j]?.count ?? 0, b.territorialTotal, b.distributions[i]?.valid ?? 0);
+      const missing = j === field.counts.length - 1;
+      return { key: String(j), labels: [r.label], missing, a: left, b: right, difference: profileDifference(left, right) };
+    }),
+  }));
+  const summary = (d: typeof a) => ({ total: d.total, territorialTotal: d.territorialTotal, complete: d.complete, excluded: d.excluded });
+  return { a: summary(a), b: summary(b), combinations, distributions };
 }
