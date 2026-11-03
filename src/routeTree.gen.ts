@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ExposicaoRouteImport } from './routes/exposicao'
 import { Route as PerfisRouteImport } from './routes/perfis'
 import { Route as ApiResearchRouteImport } from './routes/api/research'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExposicaoRoute = ExposicaoRouteImport.update({
+  id: '/exposicao',
+  path: '/exposicao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfisRoute = PerfisRouteImport.update({
@@ -31,30 +37,34 @@ const ApiResearchRoute = ApiResearchRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/exposicao': typeof ExposicaoRoute
   '/perfis': typeof PerfisRoute
   '/api/research': typeof ApiResearchRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/exposicao': typeof ExposicaoRoute
   '/perfis': typeof PerfisRoute
   '/api/research': typeof ApiResearchRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/exposicao': typeof ExposicaoRoute
   '/perfis': typeof PerfisRoute
   '/api/research': typeof ApiResearchRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/perfis' | '/api/research'
+  fullPaths: '/' | '/exposicao' | '/perfis' | '/api/research'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/perfis' | '/api/research'
-  id: '__root__' | '/' | '/perfis' | '/api/research'
+  to: '/' | '/exposicao' | '/perfis' | '/api/research'
+  id: '__root__' | '/' | '/exposicao' | '/perfis' | '/api/research'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ExposicaoRoute: typeof ExposicaoRoute
   PerfisRoute: typeof PerfisRoute
   ApiResearchRoute: typeof ApiResearchRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exposicao': {
+      id: '/exposicao'
+      path: '/exposicao'
+      fullPath: '/exposicao'
+      preLoaderRoute: typeof ExposicaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfis': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ExposicaoRoute: ExposicaoRoute,
   PerfisRoute: PerfisRoute,
   ApiResearchRoute: ApiResearchRoute,
 }
