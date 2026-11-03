@@ -21,7 +21,7 @@ function TerritoryChoice({ slot, territory, onChange }: { slot: string; territor
   </div>;
 }
 type ComparisonRow = { key: string; labels: string[]; missing?: boolean; a: ProfileMetrics; b: ProfileMetrics; difference: {count:number;points:number|null} };
-function Metric({ metric, missing }: { metric: ProfileMetrics; missing?: boolean }) {
+function Metric({ metric, missing }: { metric: ProfileMetrics; missing?: boolean | undefined }) {
   return <><div className="font-semibold tabular-nums">{metric.count.toLocaleString('pt-BR')} fichas</div><div className="mt-1 text-primary tabular-nums">{pct(metric.percent)} do território</div><div className="mt-1 text-xs text-muted-foreground">{metric.valid.toLocaleString('pt-BR')} fichas válidas</div>{!missing && <div className="mt-1 text-xs text-muted-foreground">{pct(metric.validPercent)} entre válidas</div>}</>;
 }
 function ComparisonTable({ rows, a, b, caption }: { rows: ComparisonRow[]; a:string; b:string; caption:string }) {

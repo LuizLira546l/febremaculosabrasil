@@ -24,10 +24,10 @@ describe('profile comparison',()=>{
     expect(profileDifference(profileMetrics(10,100,80),profileMetrics(30,200,150))).toEqual({count:20,points:5});
   });
   it('counts a counterpart exactly even outside its top five',()=>{
-    const i=fields.findIndex(v=>v.code==='FAIXA');const mk=(mu:string,value:number,count:number):ProfileRow=>{const v=fields.map(()=>0);v[i]=value;return [mu,2013,v,count];};
+    const i=fields.findIndex(v=>v.code==='FAIXA');const sex=fields.findIndex(v=>v.code==='CS_SEXO');const mk=(mu:string,value:number,count:number):ProfileRow=>{const v=fields.map(()=>0);v[i]=value%5;v[sex]=Math.floor(value/5);return [mu,2013,v,count];};
     const fixture=[mk('410001',5,100),...Array.from({length:6},(_,v)=>mk('350001',v,10-v))];
-    const d=computeProfileComparison(fixture,{filters:{...defaultProfileFilters,joint:['FAIXA']},a:{region:'sul',uf:'',mu:''},b:{region:'sudeste',uf:'',mu:''}});
-    expect(d.combinations.find(r=>r.key==='5')?.b.count).toBe(5);
+    const d=computeProfileComparison(fixture,{filters:{...defaultProfileFilters,joint:['CS_SEXO','FAIXA']},a:{region:'sul',uf:'',mu:''},b:{region:'sudeste',uf:'',mu:''}});
+    expect(d.combinations.find(r=>r.key==='1,0')?.b.count).toBe(5);
   });
   it('uses each variable valid denominator and separates unknown categories',()=>{
     const d=compare();const rows=d.distributions.find(v=>v.code==='CAO_GATO')?.rows;
