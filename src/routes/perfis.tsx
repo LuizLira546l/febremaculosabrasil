@@ -2,6 +2,14 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { Suspense, useState, useTransition } from 'react';
 import { ProfileComparison } from '@/components/fm/ProfileComparison';
+import { GuidedTour, type TourStep } from '@/components/fm/GuidedTour';
+
+const PERFIS_TOUR: TourStep[] = [
+  { target: 'territory', title: 'Como uma cebola', body: 'Comece pelo Brasil e vá entrando: região, depois estado, depois município. A cada camada os perfis ficam mais detalhados.' },
+  { target: 'filters', title: 'Filtre por características', body: 'Escolha, por exemplo, sexo masculino ou contato com cão/gato para ver só as fichas com essas características.' },
+  { target: 'modes', title: 'Explorar ou comparar', body: 'Em Explorar território você vê as combinações mais comuns. Em Comparar territórios, dois lugares aparecem lado a lado com contagens, porcentagens e diferenças.' },
+  { target: 'modes', title: 'Como ler os números', body: 'A porcentagem usa o total de casos do território. O número de fichas válidas mostra quantas tinham a informação preenchida. Contato com um animal não prova que ele transmitiu a doença.' },
+];
 import { ArrowLeft, ChevronRight, RotateCcw, Filter, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -28,19 +36,19 @@ function Profiles() {
   const active = fields.filter(v => f.categories[v.code]!==undefined);
   const displayed = view ? data.distributions.filter(v => v.code===view) : data.distributions;
   return <div className="min-h-screen bg-background">
-    <header className="border-b border-border px-5 py-5 lg:px-10"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4"><div><h1 className="font-display text-2xl font-semibold">Perfis · Febre Maculosa</h1><p className="mt-1 text-sm text-muted-foreground">Casos confirmados por residência · SINAN · 2013–2025</p></div><Button variant="outline" asChild><Link to="/"><ArrowLeft />Mapa e pesquisa</Link></Button></div></header>
+    <header className="border-b border-border px-5 py-5 lg:px-10"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4"><div><h1 className="font-display text-2xl font-semibold">Perfis · Febre Maculosa</h1><p className="mt-1 text-sm text-muted-foreground">Casos confirmados por residência · SINAN · 2013–2025</p></div><div className="flex gap-2"><GuidedTour storageKey="fm-tour-perfis" steps={PERFIS_TOUR} /><Button variant="outline" asChild><Link to="/"><ArrowLeft />Mapa e pesquisa</Link></Button></div></div></header>
     <div className="mx-auto grid max-w-7xl gap-8 px-5 py-6 lg:grid-cols-[280px_1fr] lg:px-10">
-      <aside className="space-y-5">
+      <aside data-tour="territory" className="space-y-5">
         <h2 className="flex items-center gap-2 font-semibold"><Filter className="h-4 w-4 text-primary" />Recorte</h2>
         <Choice label="Região" value={f.region||'all'} items={[{value:'all',label:'Brasil · todas as regiões'},...Object.entries(regions).map(([value,r])=>({value,label:r.name}))]} onChange={r=>update({region:r==='all'?'':r,uf:'',mu:''})}/>
         {f.region && <Choice label="Estado" value={f.uf||'all'} items={[{value:'all',label:'Todos os estados'},...(regions[f.region]?.states ?? []).map(value=>({value,label:states[value]?.n??value}))]} onChange={u=>update({uf:u==='all'?'':u,mu:''})}/>}
         {f.uf && <Choice label="Município" value={f.mu||'all'} items={[{value:'all',label:'Todos os municípios com casos'},...Object.entries(municipalities).filter(([m])=>m.startsWith(f.uf)).sort((a,b)=>a[1].n.localeCompare(b[1].n)).map(([value,m])=>({value,label:m.n}))]} onChange={m=>update({mu:m==='all'?'':m})}/>}
         <div className="grid grid-cols-2 gap-2"><Choice label="Ano inicial" value={String(f.from)} items={years.map(y=>({value:String(y),label:String(y)}))} onChange={v=>update({from:Number(v),to:Math.max(Number(v),f.to)})}/><Choice label="Ano final" value={String(f.to)} items={years.map(y=>({value:String(y),label:String(y)}))} onChange={v=>update({to:Number(v),from:Math.min(Number(v),f.from)})}/></div>
-        <details open className="border-t border-border pt-4"><summary className="cursor-pointer text-sm font-semibold">Filtros por variável ({active.length})</summary><div className="mt-3 space-y-3">{fields.map(v=><Choice key={v.code} label={v.label} value={f.categories[v.code]===undefined?'all':String(f.categories[v.code])} items={[{value:'all',label:'Todas as categorias'},...v.categories.map((label,i)=>({value:String(i),label}))]} onChange={value=>category(v.code,value)}/>)}</div></details>
+        <details data-tour="filters" open className="border-t border-border pt-4"><summary className="cursor-pointer text-sm font-semibold">Filtros por variável ({active.length})</summary><div className="mt-3 space-y-3">{fields.map(v=><Choice key={v.code} label={v.label} value={f.categories[v.code]===undefined?'all':String(f.categories[v.code])} items={[{value:'all',label:'Todas as categorias'},...v.categories.map((label,i)=>({value:String(i),label}))]} onChange={value=>category(v.code,value)}/>)}</div></details>
         <Button variant="outline" className="w-full" onClick={()=>startTransition(()=>setF(defaultProfileFilters))}><RotateCcw />Limpar filtros</Button>
       </aside>
       <main className="min-w-0 space-y-7">
-        <div className="flex flex-wrap gap-2" aria-label="Visualização dos perfis"><Button variant={compare?'outline':'secondary'} onClick={()=>setCompare(false)} aria-pressed={!compare}>Explorar território</Button><Button variant={compare?'secondary':'outline'} onClick={()=>setCompare(true)} aria-pressed={compare}>Comparar territórios</Button></div>
+        <div data-tour="modes" className="flex flex-wrap gap-2" aria-label="Visualização dos perfis"><Button variant={compare?'outline':'secondary'} onClick={()=>setCompare(false)} aria-pressed={!compare}>Explorar território</Button><Button variant={compare?'secondary':'outline'} onClick={()=>setCompare(true)} aria-pressed={compare}>Comparar territórios</Button></div>
         {compare ? <><details className="border-b border-border pb-4"><summary className="cursor-pointer text-sm font-semibold">Variáveis da combinação ({f.joint.length}/4)</summary><div className="mt-3 grid gap-2 sm:grid-cols-2">{fields.map(v=><label key={v.code} className="flex items-center gap-2 text-xs"><Checkbox checked={f.joint.includes(v.code)} disabled={!f.joint.includes(v.code)&&f.joint.length>=4||f.joint.includes(v.code)&&f.joint.length===1} onCheckedChange={checked=>update({joint:checked?[...f.joint,v.code]:f.joint.filter(k=>k!==v.code)})}/>{v.label}</label>)}</div></details><Suspense fallback={<p role="status" className="text-sm text-muted-foreground">Carregando comparação…</p>}><ProfileComparison filters={f} /></Suspense></> : <>
         {pending && <p role="status" className="text-xs text-muted-foreground">Atualizando o recorte…</p>}
         <nav aria-label="Território" className="flex flex-wrap items-center gap-1 text-sm"><Button variant="ghost" size="sm" onClick={()=>update({region:'',uf:'',mu:''})}>Brasil</Button>{f.region&&<><ChevronRight className="h-3 w-3"/><Button variant="ghost" size="sm" onClick={()=>update({uf:'',mu:''})}>{regions[f.region]?.name}</Button></>}{f.uf&&<><ChevronRight className="h-3 w-3"/><Button variant="ghost" size="sm" onClick={()=>update({mu:''})}>{states[f.uf]?.n}</Button></>}{f.mu&&<><ChevronRight className="h-3 w-3"/><span>{municipalities[f.mu]?.n}</span></>}</nav>
