@@ -15,3 +15,4 @@
 - Profile comparison computes exact counts for the union of both territories' top combinations on the server, sharing period/category filters; percentages use the unfiltered territorial total and separately report complete-case denominators — why: truncated rankings must never turn unlisted profiles into false zeros or obscure missingness.
 - AI calls stream through a same-origin TanStack server route and Lovable AI Gateway; the service-only research_ai_gate persists terminal access failures — why: keys stay server-side and blocked calls must not resume on reload.
 - Forecast/risk rules live in src/lib/forecast.ts with tests in src/test/forecast.test.ts — why: single source for the 2019 projection logic.
+- Exposure check rules live in src/lib/exposure.ts (tests in src/test/exposure.test.ts); sex/age never change the attention level — why: educational tool must not imply individual infection probability.
