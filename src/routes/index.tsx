@@ -5,6 +5,18 @@ import { Bug, MapPin, X } from "lucide-react";
 import raw from "@/data/fm.json";
 import { BrazilMap } from "@/components/fm/BrazilMap";
 import { ResearchPanel } from "@/components/fm/ResearchPanel";
+import { GuidedTour, type TourStep } from "@/components/fm/GuidedTour";
+
+const HOME_TOUR: TourStep[] = [
+  { target: "map", title: "O mapa", body: "As cores mostram quantos casos confirmados houve entre 2013 e 2025: quanto mais escuro, mais casos. Clique em um estado para ver seus municípios." },
+  { target: "select", title: "Escolha o local", body: "Você também pode escolher o estado e o município aqui. Só aparecem municípios com pelo menos um caso confirmado." },
+  { target: "stats", title: "Casos, óbitos e letalidade", body: "Letalidade é a porcentagem de casos confirmados que terminaram em óbito. Em locais com poucos casos, ela muda muito com um único óbito." },
+  { target: "years", title: "Casos por ano", body: "Mostra a evolução de 2013 a 2025. O ano de 2025 pode estar incompleto, pois as fichas ainda estão sendo digitadas." },
+  { target: "forecast", title: "Previsão 2026", body: "Uma linha de tendência sobre os anos anteriores estima os casos de 2026. O selo de risco compara este local com os outros do mesmo nível — não é a chance de uma pessoa adoecer." },
+  { target: "profile", title: "Quem foram os pacientes", body: "Sexo, idade e contato com carrapato ou animais registrados nas fichas. As porcentagens de contato consideram só quem respondeu Sim ou Não." },
+  { target: "research", title: "Pergunte aos dados", body: "Escreva uma pergunta em português e a IA responde mostrando os números usados. Aqui também dá para baixar os dados do recorte em planilha (CSV)." },
+  { target: "nav", title: "Vá além", body: "Explore os perfis mais comuns por região, estado e município, compare territórios lado a lado ou faça o check educativo de exposição." },
+];
 import { Button } from "@/components/ui/button";
 import { forecastNext, lethality, riskLevel, type Risk } from "@/lib/forecast";
 import {
@@ -122,15 +134,15 @@ function Index() {
             <Bug className="h-5 w-5" />
             <span className="text-xs font-semibold uppercase tracking-[0.2em]">Vigilância</span>
           </div>
-          <h1 className="mt-1 text-2xl font-semibold">Febre Maculosa · Brasil</h1>
+          <div className="mt-1 flex items-center justify-between gap-2"><h1 className="text-2xl font-semibold">Febre Maculosa · Brasil</h1><GuidedTour storageKey="fm-tour-home" steps={HOME_TOUR} /></div>
           <p className="mt-1 text-sm text-muted-foreground">
             Casos confirmados por residência, 2013–2025 (SINAN)
           </p>
-          <Button asChild variant="outline" className="mt-4 w-full"><Link to="/perfis">Explorar perfis por território</Link></Button>
-          <Button asChild variant="outline" className="mt-2 w-full"><Link to="/exposicao">Check de exposição</Link></Button>
+          <div data-tour="nav"><Button asChild variant="outline" className="mt-4 w-full"><Link to="/perfis">Explorar perfis por território</Link></Button>
+          <Button asChild variant="outline" className="mt-2 w-full"><Link to="/exposicao">Check de exposição</Link></Button></div>
         </header>
 
-        <div className="space-y-3 border-b border-border px-6 py-5">
+        <div data-tour="select" className="space-y-3 border-b border-border px-6 py-5">
           <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Estado</label>
           <Select
             value={uf || "BR"}
@@ -189,13 +201,13 @@ function Index() {
             )}
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div data-tour="stats" className="grid grid-cols-3 gap-2">
             <Stat label="Casos" value={total(summary).toString()} />
             <Stat label="Óbitos" value={summary.d.toString()} />
             <Stat label="Letalidade" value={`${lethality(summary.d, total(summary)).toFixed(1)}%`} />
           </div>
 
-          <Block title="Casos por ano">
+          <div data-tour="years"><Block title="Casos por ano">
             <div className="h-40">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={YEARS.map((y, i) => ({ ano: y, casos: summary.y[i] }))}>
@@ -211,9 +223,9 @@ function Index() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </Block>
+          </Block></div>
 
-          <Block title="Previsão 2026">
+          <div data-tour="forecast"><Block title="Previsão 2026">
             <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
               <div>
                 <div className="font-display text-3xl font-semibold">{pred.toFixed(pred < 10 ? 1 : 0)}</div>
@@ -226,9 +238,9 @@ function Index() {
                 ? `Risco comparado aos demais ${mu ? "municípios" : "estados"} com casos: terço superior = alto.`
                 : "Risco comparado à média nacional de 2013–2025."}
             </p>
-          </Block>
+          </Block></div>
 
-          <Block title="Perfil dos pacientes">
+          <div data-tour="profile"><Block title="Perfil dos pacientes">
             <Bars
               rows={[
                 ["Masculino", summary.sx[0] ?? 0],
@@ -249,11 +261,12 @@ function Index() {
             </div>
             <p className="mt-2 text-xs text-muted-foreground">% de “Sim” entre quem respondeu (exclui ignorado/em branco).</p>
           </Block>
-          <ResearchPanel uf={uf} mu={mu} />
+          </div>
+          <div data-tour="research"><ResearchPanel uf={uf} mu={mu} /></div>
         </section>
       </aside>
 
-      <main className="relative min-h-[60vh] flex-1 bg-map-sea">
+      <main data-tour="map" className="relative min-h-[60vh] flex-1 bg-map-sea">
         <div className="absolute left-4 top-4 z-10 rounded-md border border-border bg-card/80 px-3 py-2 text-xs text-muted-foreground backdrop-blur">
           {uf ? `Municípios de ${data.ufs[uf]?.n} · clique para selecionar` : "Estados · clique para ver os municípios"}
         </div>
