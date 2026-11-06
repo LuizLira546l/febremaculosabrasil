@@ -36,7 +36,8 @@ export function GuidedTour({ steps, storageKey }: { steps: TourStep[]; storageKe
   useLayoutEffect(() => {
     if (!open || !step) return;
     const el = document.querySelector(`[data-tour="${step.target}"]`);
-    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+    const tall = el ? el.getBoundingClientRect().height > window.innerHeight * 0.7 : false;
+    el?.scrollIntoView({ block: tall ? "start" : "center", behavior: "smooth" });
     measure();
     const t = window.setTimeout(measure, 400);
     window.addEventListener("resize", measure);
