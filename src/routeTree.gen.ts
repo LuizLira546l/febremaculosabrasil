@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExposicaoRouteImport } from './routes/exposicao'
 import { Route as PerfisRouteImport } from './routes/perfis'
+import { Route as RelatorioRouteImport } from './routes/relatorio'
 import { Route as ApiResearchRouteImport } from './routes/api/research'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const PerfisRoute = PerfisRouteImport.update({
   path: '/perfis',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RelatorioRoute = RelatorioRouteImport.update({
+  id: '/relatorio',
+  path: '/relatorio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiResearchRoute = ApiResearchRouteImport.update({
   id: '/api/research',
   path: '/api/research',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/exposicao': typeof ExposicaoRoute
   '/perfis': typeof PerfisRoute
+  '/relatorio': typeof RelatorioRoute
   '/api/research': typeof ApiResearchRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/exposicao': typeof ExposicaoRoute
   '/perfis': typeof PerfisRoute
+  '/relatorio': typeof RelatorioRoute
   '/api/research': typeof ApiResearchRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,23 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/exposicao': typeof ExposicaoRoute
   '/perfis': typeof PerfisRoute
+  '/relatorio': typeof RelatorioRoute
   '/api/research': typeof ApiResearchRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/exposicao' | '/perfis' | '/api/research'
+  fullPaths: '/' | '/exposicao' | '/perfis' | '/relatorio' | '/api/research'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/exposicao' | '/perfis' | '/api/research'
-  id: '__root__' | '/' | '/exposicao' | '/perfis' | '/api/research'
+  to: '/' | '/exposicao' | '/perfis' | '/relatorio' | '/api/research'
+  id:
+    '__root__' | '/' | '/exposicao' | '/perfis' | '/relatorio' | '/api/research'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ExposicaoRoute: typeof ExposicaoRoute
   PerfisRoute: typeof PerfisRoute
+  RelatorioRoute: typeof RelatorioRoute
   ApiResearchRoute: typeof ApiResearchRoute
 }
 
@@ -92,6 +103,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PerfisRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/relatorio': {
+      id: '/relatorio'
+      path: '/relatorio'
+      fullPath: '/relatorio'
+      preLoaderRoute: typeof RelatorioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/research': {
       id: '/api/research'
       path: '/api/research'
@@ -106,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ExposicaoRoute: ExposicaoRoute,
   PerfisRoute: PerfisRoute,
+  RelatorioRoute: RelatorioRoute,
   ApiResearchRoute: ApiResearchRoute,
 }
 export const routeTree = rootRouteImport
