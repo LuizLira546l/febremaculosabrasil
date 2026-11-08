@@ -29,8 +29,8 @@ function ChartView({ c }: { c: Chart }) {
   const fmt = (v: number) => `${v}${c.unit === '%' ? '%' : ''}`;
   const common = [
       <CartesianGrid key="g" stroke="var(--border)" strokeDasharray="3 3" />,
-      <XAxis key="x" dataKey={c.x} stroke="var(--muted-foreground)" fontSize={11} interval={many ? 'preserveStartEnd' : 0} angle={c.data.length > 6 && !many ? -25 : 0} textAnchor={c.data.length > 6 && !many ? 'end' : 'middle'} height={c.data.length > 6 && !many ? 70 : 30} />,
-      <YAxis key="y" stroke="var(--muted-foreground)" fontSize={11} tickFormatter={fmt} />,
+      <XAxis key="x" dataKey={c.x} stroke="var(--border)" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} interval={many ? 'preserveStartEnd' : 0} angle={c.data.length > 6 && !many ? -25 : 0} textAnchor={c.data.length > 6 && !many ? 'end' : 'middle'} height={c.data.length > 6 && !many ? 70 : 30} />,
+      <YAxis key="y" stroke="var(--border)" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} tickFormatter={fmt} />,
       <Tooltip key="t" formatter={(v: number) => fmt(v)} contentStyle={{ background: 'var(--popover)', border: '1px solid var(--border)', color: 'var(--popover-foreground)' }} cursor={{ fill: 'var(--muted)', opacity: 0.4 }} />,
       c.series.length > 1 ? <Legend key="l" onClick={(e) => { const k = String(e.dataKey); setHidden(h => h.includes(k) ? h.filter(x => x !== k) : [...h, k]); }} wrapperStyle={{ fontSize: 12, cursor: 'pointer' }} /> : null,
   ];
