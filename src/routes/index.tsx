@@ -139,7 +139,8 @@ function Index() {
             Casos confirmados por residência, 2013–2025 (SINAN)
           </p>
           <div data-tour="nav"><Button asChild variant="outline" className="mt-4 w-full"><Link to="/perfis">Explorar perfis por território</Link></Button>
-          <Button asChild variant="outline" className="mt-2 w-full"><Link to="/exposicao">Check de exposição</Link></Button></div>
+          <Button asChild variant="outline" className="mt-2 w-full"><Link to="/exposicao">Check de exposição</Link></Button>
+          <Button asChild variant="outline" className="mt-2 w-full"><Link to="/relatorio">Relatório: 39 perguntas</Link></Button></div>
         </header>
 
         <div data-tour="select" className="space-y-3 border-b border-border px-6 py-5">
