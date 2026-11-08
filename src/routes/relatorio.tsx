@@ -40,9 +40,9 @@ function ChartView({ c }: { c: Chart }) {
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
           {c.kind === 'line' ? (
-            <LineChart data={c.data}>{common}{c.series.map((s, i) => <Line key={s.key} dataKey={s.key} name={s.name} hide={hidden.includes(s.key)} stroke={COLORS[i % COLORS.length]} strokeWidth={2} dot={false} />)}</LineChart>
+            <LineChart data={c.data}>{common}{c.series.map((s, i) => <Line key={s.key} dataKey={s.key} name={s.name} hide={hidden.includes(s.key)} stroke={COLORS[i % COLORS.length] ?? "var(--primary)"} strokeWidth={2} dot={false} />)}</LineChart>
           ) : (
-            <BarChart data={c.data}>{common}{c.series.map((s, i) => <Bar key={s.key} dataKey={s.key} name={s.name} hide={hidden.includes(s.key)} stackId={c.stacked ? 'a' : undefined} fill={COLORS[i % COLORS.length]} radius={c.stacked ? 0 : [3, 3, 0, 0]} />)}</BarChart>
+            <BarChart data={c.data}>{common}{c.series.map((s, i) => <Bar key={s.key} dataKey={s.key} name={s.name} hide={hidden.includes(s.key)} {...(c.stacked ? { stackId: "a" } : {})} fill={COLORS[i % COLORS.length] ?? "var(--primary)"} radius={c.stacked ? 0 : [3, 3, 0, 0]} />)}</BarChart>
           )}
         </ResponsiveContainer>
       </div>
@@ -55,7 +55,7 @@ function Report() {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState<number>(1);
   const list = useMemo(() => QS.filter(x => (area === 'Todas' || x.area === area) && (x.question + x.answer).toLowerCase().includes(q.toLowerCase())), [area, q]);
-  const cur = QS.find(x => x.id === open) ?? QS[0];
+  const cur = (QS.find(x => x.id === open) ?? QS[0]) as Question;
   return (
     <main className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border px-6 py-5">
