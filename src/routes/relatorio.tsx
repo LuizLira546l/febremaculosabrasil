@@ -27,15 +27,13 @@ function ChartView({ c }: { c: Chart }) {
   const [hidden, setHidden] = useState<string[]>([]);
   const many = c.data.length > 14;
   const fmt = (v: number) => `${v}${c.unit === '%' ? '%' : ''}`;
-  const common = (
-    <>
-      <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" />
-      <XAxis dataKey={c.x} stroke="var(--muted-foreground)" fontSize={11} interval={many ? 'preserveStartEnd' : 0} angle={c.data.length > 6 && !many ? -25 : 0} textAnchor={c.data.length > 6 && !many ? 'end' : 'middle'} height={c.data.length > 6 && !many ? 70 : 30} />
-      <YAxis stroke="var(--muted-foreground)" fontSize={11} tickFormatter={fmt} />
-      <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ background: 'var(--popover)', border: '1px solid var(--border)', color: 'var(--popover-foreground)' }} cursor={{ fill: 'var(--muted)', opacity: 0.4 }} />
-      {c.series.length > 1 && <Legend onClick={(e) => { const k = String(e.dataKey); setHidden(h => h.includes(k) ? h.filter(x => x !== k) : [...h, k]); }} wrapperStyle={{ fontSize: 12, cursor: 'pointer' }} />}
-    </>
-  );
+  const common = [
+      <CartesianGrid key="g" stroke="var(--border)" strokeDasharray="3 3" />,
+      <XAxis key="x" dataKey={c.x} stroke="var(--muted-foreground)" fontSize={11} interval={many ? 'preserveStartEnd' : 0} angle={c.data.length > 6 && !many ? -25 : 0} textAnchor={c.data.length > 6 && !many ? 'end' : 'middle'} height={c.data.length > 6 && !many ? 70 : 30} />,
+      <YAxis key="y" stroke="var(--muted-foreground)" fontSize={11} tickFormatter={fmt} />,
+      <Tooltip key="t" formatter={(v: number) => fmt(v)} contentStyle={{ background: 'var(--popover)', border: '1px solid var(--border)', color: 'var(--popover-foreground)' }} cursor={{ fill: 'var(--muted)', opacity: 0.4 }} />,
+      c.series.length > 1 ? <Legend key="l" onClick={(e) => { const k = String(e.dataKey); setHidden(h => h.includes(k) ? h.filter(x => x !== k) : [...h, k]); }} wrapperStyle={{ fontSize: 12, cursor: 'pointer' }} /> : null,
+  ];
   return (
     <figure className="rounded-lg border border-border bg-card p-4">
       <figcaption className="mb-2 text-sm font-medium">{c.title}{c.series.length > 1 && <span className="ml-2 text-xs text-muted-foreground">(clique na legenda para ocultar séries)</span>}</figcaption>
