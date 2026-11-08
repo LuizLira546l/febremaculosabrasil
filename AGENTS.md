@@ -16,3 +16,4 @@
 - AI calls stream through a same-origin TanStack server route and Lovable AI Gateway; the service-only research_ai_gate persists terminal access failures — why: keys stay server-side and blocked calls must not resume on reload.
 - Forecast/risk rules live in src/lib/forecast.ts with tests in src/test/forecast.test.ts — why: single source for the 2019 projection logic.
 - Exposure check rules live in src/lib/exposure.ts (tests in src/test/exposure.test.ts); sex/age never change the attention level — why: educational tool must not imply individual infection probability.
+- Report tab (/relatorio) reads src/data/report.json generated offline by scripts/aggregate-report.py (aggregates only) — why: answers to the questions document must be reproducible from the raw spreadsheets without shipping records.
