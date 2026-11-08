@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Tarefas
+- [x] Aba Relatório com as 39 perguntas e gráficos interativos
 - [x] Comparação lado a lado de perfis entre territórios, com contagens, percentuais e fichas válidas — testes e comparação real entre regiões, estados e municípios conferidos
 - [x] Perfis por variável e combinações reais, com filtros e exploração Brasil → região → estado → município
 - [x] Pesquisa em linguagem natural via AI Gateway, com filtros e evidências verificáveis
